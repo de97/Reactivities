@@ -31,6 +31,14 @@ namespace API
             {
                 opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
             });
+        //any Reuqest coming from client app can use any method or header coming from localhost3000
+        //add corse policy allows you to create own policy
+            services.AddCors(opt => 
+            {
+                opt.AddPolicy("CorsPolicy", policy => {
+                    policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000");
+                });
+            });
             services.AddControllers();
         }
 
@@ -43,7 +51,9 @@ namespace API
             }
 
            // app.UseHttpsRedirection();
-
+           // specify cors pollicy
+           app.UseCors("CorsPolicy");
+        
             app.UseRouting();
 
             app.UseAuthorization();
@@ -54,4 +64,4 @@ namespace API
             });
         }
     }
-}
+}  
