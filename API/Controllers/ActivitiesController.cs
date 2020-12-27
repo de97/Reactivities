@@ -8,9 +8,11 @@ using Domain;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
+//api controller is responsible for recieving request and returning responses
 namespace API.Controllers
 {
     [Route("api/[controller]")]
+    //gives automatic http 400 responses and saves from needing to check a validation error
     [ApiController]
 
     //inject mediator into activities controller so create contsructor

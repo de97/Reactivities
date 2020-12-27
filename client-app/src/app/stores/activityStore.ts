@@ -19,24 +19,30 @@ class ActivityStore {
   //we use computed when data is already inside our store but we can work out what the reult should be on already existing data
   //activityRegistery returns an iterable of values in the map and then we get an array of the value and sort by date
   get activitiesByDate() {
-    return this.groupActivitiesByDate(Array.from(this.activityRegistry.values()));
+    return this.groupActivitiesByDate(
+      Array.from(this.activityRegistry.values())
+    );
   }
 
   //take activities as the parameter
- 
+
   groupActivitiesByDate(activities: IActivity[]) {
     const sortedActivities = activities.sort(
       (a, b) => Date.parse(a.date) - Date.parse(b.date)
     );
-     //reduce our current array that we get from object entries and create a new array of objects where the key of object is the activity date as a string
-     //the value is going to be an array of activities
-    return Object.entries(sortedActivities.reduce((activities, activity) => {
-      //just want the date and not the time so take the first element of the array that this produces
-      const date = activity.date.split('T')[0];
-      //check and compare date if it is matching add to array if true spraed the array of activities for this date and add activity into it if not just add activity
-      activities[date] = activities[date] ? [...activities[date], activity] : [activity];
-      return activities;
-    }, {} as {[key: string]: IActivity[]}));
+    //reduce our current array that we get from object entries and create a new array of objects where the key of object is the activity date as a string
+    //the value is going to be an array of activities
+    return Object.entries(
+      sortedActivities.reduce((activities, activity) => {
+        //just want the date and not the time so take the first element of the array that this produces
+        const date = activity.date.split("T")[0];
+        //check and compare date if it is matching add to array if true spraed the array of activities for this date and add activity into it if not just add activity
+        activities[date] = activities[date]
+          ? [...activities[date], activity]
+          : [activity];
+        return activities;
+      }, {} as { [key: string]: IActivity[] })
+    );
   }
 
   //await is equivalent to then and is actually another function that is not covered by action
@@ -49,10 +55,8 @@ class ActivityStore {
         this.activityRegistry.set(activity.id, activity);
       });
       this.loadingInitial = false;
-      console.log(this.groupActivitiesByDate(activities));
-    }
-    
-    catch (error) {
+      
+    } catch (error) {
       this.loadingInitial = false;
       console.log(error);
     }

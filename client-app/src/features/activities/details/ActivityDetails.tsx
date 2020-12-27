@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite";
 import React, { useContext, useEffect } from "react";
 import { RouteComponentProps } from "react-router-dom";
-import { Card, Image, Button, Grid } from "semantic-ui-react";
+import { Grid } from "semantic-ui-react";
 import LoadingComponent from "../../../app/layout/LoadingComponent";
 import ActivityStore from "../../../app/stores/activityStore";
 import ActivityDetailedChat from "./ActivityDetailedChat";
@@ -15,6 +15,7 @@ interface DetailsParams {
 
 const ActivityDetails: React.FC<RouteComponentProps<DetailsParams>> = ({
   match,
+  history,
 }) => {
   const activityStore = useContext(ActivityStore);
   const { activity, loadActivity, loadingInitial } = activityStore;
@@ -23,16 +24,17 @@ const ActivityDetails: React.FC<RouteComponentProps<DetailsParams>> = ({
   //only want to run once when component mounts
   useEffect(() => {
     loadActivity(match.params.id);
-  }, [loadActivity, match.params.id]);
+  }, [loadActivity, match.params.id, history]);
 
-  if (loadingInitial || !activity)
-    return <LoadingComponent content="Loading activity..." />;
+  if (loadingInitial) return <LoadingComponent content="Loading activity..." />;
+
+  if (!activity) return <h2>Activity not found</h2>;
 
   return (
     <Grid>
       <Grid.Column width={10}>
-        <ActivityDetailedHeader activity={activity}/>
-        <ActivityDetailedInfo activity={activity}/>
+        <ActivityDetailedHeader activity={activity} />
+        <ActivityDetailedInfo activity={activity} />
         <ActivityDetailedChat />
       </Grid.Column>
       <Grid.Column width={6}>

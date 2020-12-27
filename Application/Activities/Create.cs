@@ -4,11 +4,13 @@ using System.Threading.Tasks;
 using Domain;
 using MediatR;
 using Persistence;
+using FluentValidation;
 
 namespace Application.Activities
 {
     public class Create
     {
+        //recieve activity inside create command and is then passed to handler
         public class Command : IRequest
         {
             public Guid Id { get; set; }
@@ -18,6 +20,22 @@ namespace Application.Activities
             public DateTime Date { get; set; }
             public string city { get; set; }
             public string Venue { get; set; }
+        }
+
+        //validate all properties
+        public class CommandValidator : AbstractValidator<Command>
+        {
+            public CommandValidator()
+            {
+                //expression x goes to title
+                RuleFor(x => x.Title).NotEmpty();
+                RuleFor(x => x.Description).NotEmpty();
+                RuleFor(x => x.Category).NotEmpty();
+                RuleFor(x => x.Date).NotEmpty();
+                RuleFor(x => x.city).NotEmpty();
+                RuleFor(x => x.Venue).NotEmpty();
+            }
+
         }
 
         public class Handler : IRequestHandler<Command>

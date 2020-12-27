@@ -7,6 +7,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Persistence;
+using FluentValidation.AspNetCore;
+using API.Middleware;
 
 namespace API
 {
@@ -19,38 +21,47 @@ namespace API
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        // This method gets called by the runtime. Use this method to add services to the container
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<DataContext>(opt =>
             {
                 opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
             });
-        //any Reuqest coming from client app can use any method or header coming from localhost3000
-        //add corse policy allows you to create own policy
-            services.AddCors(opt => 
+            //any Reuqest coming from client app can use any method or header coming from localhost3000
+            //add corse policy allows you to create own policy
+            services.AddCors(opt =>
             {
-                opt.AddPolicy("CorsPolicy", policy => {
+                opt.AddPolicy("CorsPolicy", policy =>
+                {
                     policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000");
                 });
             });
             //give the assembly that handlers are located in
             services.AddMediatR(typeof(List.Handler).Assembly);
-            services.AddControllers();
+            services.AddControllers()
+                .AddFluentValidation(cfg =>
+                {
+                    //register in our services all the validators from assembly that contain create class
+                    cfg.RegisterValidatorsFromAssemblyContaining<Create>();
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseMiddleware<ErrorHandlingMiddleware>();
+            //use our own exception handling middlerware for development and production - "not using developer exceptionpage"
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                
+                //app.UseDeveloperExceptionPage();
             }
 
-           // app.UseHttpsRedirection();
-           // specify cors pollicy
-           app.UseCors("CorsPolicy");
-        
+            // app.UseHttpsRedirection();
+            // specify cors pollicy
+            app.UseCors("CorsPolicy");
+
             app.UseRouting();
 
             app.UseAuthorization();
@@ -61,4 +72,4 @@ namespace API
             });
         }
     }
-}  
+}
